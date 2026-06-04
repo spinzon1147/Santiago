@@ -221,6 +221,24 @@
 
         </div>
 
+        <div class="card-modulo">
+
+    <div class="icono">
+        <i class="fa-solid fa-box"></i>
+    </div>
+
+    <h2>Módulo Productos</h2>
+
+    <p>
+        Registrar, actualizar y administrar los productos disponibles en la tienda y controlar el stock.
+    </p>
+
+    <a href="{{ route('productos.index') }}" class="btn-orange">
+        Entrar
+    </a>
+
+</div>
+
     </div>
 
 </div>

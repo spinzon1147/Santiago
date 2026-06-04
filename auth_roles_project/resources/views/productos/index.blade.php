@@ -69,16 +69,13 @@
 
     .btn-orange:hover {
         background: var(--naranja-oscuro);
-        transform: translateY(-2px);
         color: white;
     }
 
     .table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 10px;
-        overflow: hidden;
-        border-radius: 15px;
+        font-size: 15px;
     }
 
     .table thead {
@@ -86,81 +83,33 @@
     }
 
     .table th {
-        text-align: left;
         padding: 14px;
-        font-weight: 600;
+        text-align: left;
         color: var(--texto);
-        font-size: 14px;
     }
 
     .table td {
         padding: 14px;
         border-top: 1px solid #f3d7c2;
-        color: var(--gris);
-        font-size: 14px;
     }
 
-    .table tbody tr:hover {
-        background: #fff7f0;
-    }
-
-    .btn-edit {
-        background: white;
-        font-family: 'Poppins', sans-serif;
-        color: var(--naranja);
-        padding: 7px 14px;
-        border: 2px solid #E85A0A;
-        border-radius: 10px;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 13px;
-        transition: .2s;
-    }
-
-    .btn-edit:hover {
-        filter: brightness(0.95);
-        background: var(--naranja-suave);
-    }
-
+    .btn-edit,
     .btn-delete {
         background: white;
-        font-family: 'Poppins', sans-serif;
         border: 2px solid #E85A0A;
         color: var(--naranja);
         padding: 7px 14px;
         border-radius: 10px;
         font-weight: 600;
-        font-size: 13px;
+        text-decoration: none;
         cursor: pointer;
-        transition: .2s;
-    }
-
-    .btn-delete:hover {
-        filter: brightness(0.9);
-        background: var(--naranja-suave);
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
     }
 
     .actions {
         display: flex;
         gap: 10px;
-    }
-
-    .alert-success {
-        border-radius: 15px;
-        margin-bottom: 15px;
-    }
-
-    @media (max-width: 768px) {
-        .header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 15px;
-        }
-
-        .table {
-            display: block;
-            overflow-x: auto;
-        }
     }
 </style>
 
@@ -171,13 +120,13 @@
         <div class="header">
 
             <div class="title">
-                <i class="fa-solid fa-cash-register"></i>
-                Ventas
+                <i class="fa-solid fa-box"></i>
+                Productos
             </div>
 
-            <a href="{{ route('ventas.create') }}" class="btn-orange">
+            <a href="{{ route('productos.create') }}" class="btn-orange">
                 <i class="fa-solid fa-plus"></i>
-                Nueva Venta
+                Nuevo Producto
             </a>
 
         </div>
@@ -188,55 +137,42 @@
             <thead>
                 <tr>
                     <th>ID</th>
-<th>Producto</th>
-<th>Cantidad</th>
-<th>Precio Unitario</th>
-<th>Total</th>
-<th>Fecha</th>
-<th>Acciones</th>
+                    <th>Nombre</th>
+                    <th>Stock</th>
+                    <th>Estado</th>
+                    <th>Precio</th>
+                    <th>Descripción</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
 
             <tbody>
 
-            @foreach($ventas as $venta)
+                @foreach($productos as $producto)
 
                 <tr>
 
-<td>{{ $venta->Id_Ven }}</td>
+                    <td>{{ $producto->Id_pro }}</td>
+                    <td>{{ $producto->Nom_pro }}</td>
+                    <td>{{ $producto->Cant_pro }}</td>
+                    <td>{{ $producto->Estado_pro }}</td>
+                    <td>${{ number_format($producto->Precio_pro, 0, ',', '.') }}</td>
+                    <td>{{ $producto->Descrip_pro }}</td>
 
-<td>{{ $venta->producto?->Nom_pro }}</td>
-
-<td>{{ $venta->Cant_Ven }}</td>
-
-<td>
-    ${{ number_format($venta->producto->Precio_pro, 0, ',', '.') }}
-</td>
-
-<td>
-    ${{ number_format($venta->producto->Precio_pro * $venta->Cant_Ven, 0, ',', '.') }}
-</td>
-
-<td>
-    {{ \Carbon\Carbon::parse($venta->Fecha_Ven)->format('d/m/Y h:i A') }}
-</td>
                     <td>
 
                         <div class="actions">
 
-                            <a href="{{ route('ventas.edit',$venta->Id_Ven) }}" class="btn-edit">
+                            <a href="{{ route('productos.edit',$producto->Id_pro) }}" class="btn-edit">
                                 Editar
                             </a>
 
-                            <form action="{{ route('ventas.destroy',$venta->Id_Ven) }}" method="POST">
+                            <form action="{{ route('productos.destroy',$producto->Id_pro) }}" method="POST">
 
                                 @csrf
                                 @method('DELETE')
 
-                                <button
-                                    type="submit"
-                                    class="btn-delete"
-                                    onclick="return confirm('¿Eliminar esta venta?')">
+                                <button class="btn-delete" onclick="return confirm('¿Eliminar producto?')">
                                     Eliminar
                                 </button>
 
@@ -248,7 +184,7 @@
 
                 </tr>
 
-            @endforeach
+                @endforeach
 
             </tbody>
 

@@ -6,15 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class Venta extends Model
 {
-    protected $table = 'venta';
-
+    protected $table = 'ventas';
     protected $primaryKey = 'Id_Ven';
 
-    public $timestamps = false;
-
     protected $fillable = [
-        'Valor_Ven',
+        'Id_Prod_FK',
+        'Cant_Ven',
+        'Total_Ven',
         'Fecha_Ven',
-        'Cant_Ven'
     ];
+
+    public function producto()
+    {
+        return $this->belongsTo(Producto::class, 'Id_Prod_FK', 'Id_pro');
+    }
 }

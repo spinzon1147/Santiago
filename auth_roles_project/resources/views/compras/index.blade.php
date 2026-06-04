@@ -70,15 +70,13 @@
     .btn-orange:hover {
         background: var(--naranja-oscuro);
         transform: translateY(-2px);
-        color: white;
     }
 
     .table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 10px;
-        overflow: hidden;
-        border-radius: 15px;
+        font-size: 15px;
+        margin-top: 15px;
     }
 
     .table thead {
@@ -86,41 +84,21 @@
     }
 
     .table th {
-        text-align: left;
         padding: 14px;
-        font-weight: 600;
+        text-align: left;
         color: var(--texto);
-        font-size: 14px;
     }
 
     .table td {
         padding: 14px;
         border-top: 1px solid #f3d7c2;
-        color: var(--gris);
-        font-size: 14px;
     }
 
     .table tbody tr:hover {
         background: #fff7f0;
     }
 
-    .btn-edit {
-        background: white;
-        color: var(--naranja);
-        padding: 7px 14px;
-        border: 2px solid #E85A0A;
-        border-radius: 10px;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 13px;
-        transition: .2s;
-    }
-
-    .btn-edit:hover {
-        background: var(--naranja-suave);
-        filter: brightness(0.95);
-    }
-
+    .btn-edit,
     .btn-delete {
         background: white;
         border: 2px solid #E85A0A;
@@ -128,16 +106,17 @@
         padding: 7px 14px;
         border-radius: 10px;
         font-weight: 600;
-        font-size: 13px;
+        text-decoration: none;
         cursor: pointer;
-        transition: .2s;
         font-family: 'Poppins', sans-serif;
+        font-size: 13px;
+        transition: .2s;
     }
 
+    .btn-edit:hover,
     .btn-delete:hover {
         background: var(--naranja-suave);
-        filter: brightness(0.9);
-        
+        filter: brightness(0.95);
     }
 
     .actions {
@@ -145,17 +124,8 @@
         gap: 10px;
     }
 
-    @media (max-width: 768px) {
-        .header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 15px;
-        }
-
-        .table {
-            display: block;
-            overflow-x: auto;
-        }
+    a {
+        text-decoration: none;
     }
 </style>
 
@@ -166,7 +136,7 @@
         <div class="header">
 
             <div class="title">
-                <i class="fa-solid fa-box"></i>
+                <i class="fa-solid fa-cart-shopping"></i>
                 Compras
             </div>
 
@@ -182,9 +152,10 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Valor</th>
-                    <th>Fecha</th>
+                    <th>Producto</th>
                     <th>Cantidad</th>
+                    <th>Total</th>
+                    <th>Fecha</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -194,16 +165,24 @@
             @foreach($compras as $compra)
 
                 <tr>
-
                     <td>{{ $compra->Id_Com }}</td>
-                    <td>{{ $compra->Valor_Com }}</td>
-                    <td>{{ $compra->Fecha_Com }}</td>
+
+                    <td>{{ $compra->producto?->Nom_pro }}</td>
+
                     <td>{{ $compra->Cant_Com }}</td>
+
+                    <td>
+                        ${{ number_format($compra->Valor_Com, 0, ',', '.') }}
+                    </td>
+
+                    <td>
+                        {{ \Carbon\Carbon::parse($compra->Fecha_Com)->format('d/m/Y h:i A') }}
+                    </td>
 
                     <td>
                         <div class="actions">
 
-                            <a href="{{ route('compras.edit',$compra->Id_Com) }}" class="btn-edit">
+                            <a class="btn-edit" href="{{ route('compras.edit',$compra->Id_Com) }}">
                                 Editar
                             </a>
 
@@ -211,14 +190,13 @@
                                 @csrf
                                 @method('DELETE')
 
-                                <button class="btn-delete" onclick="return confirm('¿Eliminar esta compra?')">
+                                <button class="btn-delete" onclick="return confirm('¿Eliminar compra?')">
                                     Eliminar
                                 </button>
                             </form>
 
                         </div>
                     </td>
-
                 </tr>
 
             @endforeach

@@ -5,18 +5,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up(): void {
-        Schema::create('venta', function (Blueprint $table) {
-            $table->bigIncrements('Id_Ven');
-            $table->bigInteger('Valor_Ven');
-            $table->date('Fecha_Ven');
-            $table->integer('Cant_Ven');
-            $table->unsignedBigInteger('Id_Fact_FK_VENTA')->nullable();
-            $table->string('Estado_Ven', 10)->nullable();
-            $table->timestamps();
-            $table->foreign('Id_Fact_FK_VENTA')->references('Id_Fact')->on('factura_venta');
-        });
+        Schema::create('ventas', function (Blueprint $table) {
+    $table->id('Id_Ven');
+
+    $table->unsignedBigInteger('Id_Prod_FK');
+    $table->integer('Cant_Ven');
+    $table->decimal('Total_Ven', 12, 2);
+    $table->dateTime('Fecha_Ven');
+
+    $table->timestamps();
+
+    $table->foreign('Id_Prod_FK')
+        ->references('Id_pro')
+        ->on('producto');
+});
     }
     public function down(): void {
-        Schema::dropIfExists('venta');
-    }
+    Schema::dropIfExists('ventas');
+}
 };

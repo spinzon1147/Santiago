@@ -189,6 +189,10 @@
                 Mi perfil
             </a>
 
+            <a href="{{ route('productos.index') }}">
+                Productos
+            </a>
+
             @if(Auth::user()->role && Auth::user()->role->name === 'admin')
 
                 <a href="{{ route('users.index') }}" class="admin-link">

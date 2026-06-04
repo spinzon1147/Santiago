@@ -57,7 +57,7 @@
         color: var(--texto);
     }
 
-    input {
+    input, select {
         width: 100%;
         padding: 12px 14px;
         border-radius: 12px;
@@ -66,9 +66,10 @@
         font-family: 'Poppins', sans-serif;
         font-size: 14px;
         transition: .2s;
+        background: #fff;
     }
 
-    input:focus {
+    input:focus, select:focus {
         border-color: var(--naranja);
         box-shadow: 0 0 0 3px rgba(255,107,26,0.15);
     }
@@ -117,24 +118,33 @@
     <div class="form-card">
 
         <div class="title">
-            <i class="fa-solid fa-box"></i>
+            <i class="fa-solid fa-cart-shopping"></i>
             Registrar Compra
         </div>
 
         <form action="{{ route('compras.store') }}" method="POST">
             @csrf
 
-            <label>Valor de la Compra</label>
-            <input type="number" name="Valor_Com" required>
-
-            <label>Fecha</label>
-            <input type="datetime-local" name="Fecha_Com" required>
+            <label>Producto</label>
+            <select name="Id_Prod_FK" required>
+                @foreach($productos as $producto)
+                    <option value="{{ $producto->Id_pro }}">
+                        {{ $producto->Nom_pro }}
+                    </option>
+                @endforeach
+            </select>
 
             <label>Cantidad</label>
             <input type="number" name="Cant_Com" required>
 
+            <label>Fecha</label>
+            <input type="datetime-local" name="Fecha_Com" required>
+
+            <label>Valor de la compra</label>
+            <input type="number" name="Valor_Com" required>
+
             <button type="submit" class="btn-primary">
-                Guardar
+                Guardar Compra
             </button>
 
             <a href="{{ route('compras.index') }}" class="btn-secondary">
@@ -146,4 +156,5 @@
     </div>
 
 </div>
+
 @endsection
