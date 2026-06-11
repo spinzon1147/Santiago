@@ -2,85 +2,82 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\User;
 use App\Models\Role;
+use App\Models\User;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\View\View;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         $users = User::with('role')->get();
+
         return view('users.index', compact('users'));
     }
 
-    public function create()
+    public function create(): View
     {
         $roles = Role::all();
+
         return view('users.create', compact('roles'));
     }
 
-    public function store(Request $request)
+    public function store(StoreUserRequest $request): RedirectResponse
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-            'role_id' => 'required|exists:roles,id'
-        ]);
+        $data = $request->validated();
+        $data['password'] = Hash::make($data['password']);
 
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role_id' => $request->role_id
-        ]);
+        User::create($data);
 
-        return redirect()->route('users.index')->with('success', 'Usuario creado correctamente.');
+        return redirect()
+            ->route('users.index')
+            ->with('success', 'Usuario creado correctamente.');
     }
 
-    public function show($id)
+    public function show(string $id): View
     {
         $user = User::with('role')->findOrFail($id);
+
         return view('users.show', compact('user'));
     }
 
-    public function edit($id)
+    public function edit(string $id): View
     {
         $user = User::findOrFail($id);
         $roles = Role::all();
+
         return view('users.edit', compact('user', 'roles'));
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateUserRequest $request, string $id): RedirectResponse
     {
         $user = User::findOrFail($id);
+        $data = $request->validated();
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:6|confirmed',
-            'role_id' => 'required|exists:roles,id'
-        ]);
-
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->role_id = $request->role_id;
-
-        if ($request->filled('password')) {
-            $user->password = Hash::make($request->password);
+        if (filled($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        } else {
+            unset($data['password']);
         }
 
-        $user->save();
+        $user->update($data);
 
-        return redirect()->route('users.index')->with('success', 'Usuario actualizado correctamente.');
+        return redirect()
+            ->route('users.index')
+            ->with('success', 'Usuario actualizado correctamente.');
     }
 
-    public function destroy($id)
+    public function destroy(string $id): RedirectResponse
     {
         $user = User::findOrFail($id);
         $user->delete();
-        return redirect()->route('users.index')->with('success', 'Usuario eliminado correctamente.');
+
+        return redirect()
+            ->route('users.index')
+            ->with('success', 'Usuario eliminado correctamente.');
     }
 }

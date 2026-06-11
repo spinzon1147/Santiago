@@ -1,218 +1,67 @@
 @extends('layouts.app')
 
+@section('title', 'Editar Producto')
+
 @section('content')
+<div style="max-width:640px;margin:0 auto">
+    <a href="{{ route('productos.index') }}" class="back-link">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        Volver a Productos
+    </a>
+    <h1 style="font-size:26px;font-weight:700;color:#0f172a;letter-spacing:-0.5px;margin:0 0 24px 0">Editar Producto</h1>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-<style>
-    :root {
-        --naranja: #FF6B1A;
-        --naranja-oscuro: #E85A0A;
-        --naranja-suave: #FFF0E6;
-        --crema: #FFF8F2;
-        --texto: #2D1A00;
-        --gris: #666;
-    }
-
-    body {
-        background: linear-gradient(to bottom right, #FFF8F2, #FFF1E5);
-        font-family: 'Poppins', sans-serif;
-    }
-
-    .container-custom {
-        max-width: 800px;
-        margin: auto;
-        padding: 50px 20px;
-    }
-
-    .card-custom {
-        background: #fff;
-        border-radius: 28px;
-        padding: 35px;
-        border: 1px solid #f3d7c2;
-        box-shadow: 0 10px 35px rgba(0,0,0,0.06);
-    }
-
-    .title {
-        font-size: 28px;
-        font-weight: 700;
-        color: var(--texto);
-        margin-bottom: 30px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .title i {
-        color: var(--naranja);
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-    .form-label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: 600;
-        color: var(--texto);
-    }
-
-    .form-control {
-        width: 100%;
-        padding: 12px 15px;
-        border: 1px solid #e5d1c2;
-        border-radius: 12px;
-        font-family: 'Poppins', sans-serif;
-        font-size: 14px;
-        outline: none;
-        transition: .2s;
-    }
-
-    .form-control:focus {
-        border-color: var(--naranja);
-        box-shadow: 0 0 0 3px rgba(255,107,26,0.15);
-    }
-
-    .btn-orange {
-        background: var(--naranja);
-        color: white;
-        border: none;
-        padding: 12px 22px;
-        border-radius: 50px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: .2s;
-        text-decoration: none;
-        font-family: 'Poppins', sans-serif;
-        font-size: 14px;
-    }
-
-    .btn-orange:hover {
-        background: var(--naranja-oscuro);
-        color: white;
-    }
-
-    .btn-secondary {
-        background: white;
-        color: var(--naranja);
-        border: 2px solid var(--naranja);
-        padding: 10px 22px;
-        border-radius: 50px;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 14px;
-    }
-
-    .buttons {
-        display: flex;
-        gap: 10px;
-        margin-top: 25px;
-    }
-
-    .alert-danger {
-        background: #ffe5e5;
-        color: #b30000;
-        padding: 15px;
-        border-radius: 12px;
-        margin-bottom: 20px;
-    }
-</style>
-
-<div class="container-custom">
-
-    <div class="card-custom">
-
-        <div class="title">
-            <i class="fa-solid fa-pen-to-square"></i>
-            Editar Producto
-        </div>
-
-        @if ($errors->any())
-            <div class="alert-danger">
-                <ul>
+    <div class="card">
+        <form action="{{ route('productos.update', $producto->Id_pro) }}" method="POST" style="display:flex;flex-direction:column;gap:20px">
+            @csrf @method('PATCH')
+            @if ($errors->any())
+            <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:16px 20px;margin-bottom:8px">
+                <p style="font-size:14px;font-weight:600;color:#b91c1c;margin:0 0 8px">Corrige los siguientes errores:</p>
+                <ul style="margin:0;padding-left:16px">
                     @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
+                    <li style="font-size:13px;color:#ef4444;margin-bottom:4px">{{ $error }}</li>
                     @endforeach
                 </ul>
             </div>
-        @endif
-
-        <form action="{{ route('productos.update', $producto->Id_pro) }}" method="POST">
-
-            @csrf
-            @method('PUT')
-
-            <div class="form-group">
-                <label class="form-label">Nombre</label>
-                <input type="text"
-                       name="Nom_pro"
-                       class="form-control"
-                       value="{{ old('Nom_pro', $producto->Nom_pro) }}"
-                       required>
+            @endif
+            <div>
+                <label class="input-label">Nombre del Producto</label>
+                <input type="text" name="Nom_pro" value="{{ old('Nom_pro', $producto->Nom_pro) }}" required placeholder="Nombre del producto" class="input @error('Nom_pro') is-invalid @enderror">
+                @error('Nom_pro')<p class="input-error">{{ $message }}</p>@enderror
             </div>
-
-            <div class="form-group">
-                <label class="form-label">Cantidad</label>
-                <input type="number"
-                       name="Cant_pro"
-                       class="form-control"
-                       value="{{ old('Cant_pro', $producto->Cant_pro) }}"
-                       required>
+            <div>
+                <label class="input-label">Descripción <span style="color:#94a3b8;font-weight:400">(opcional)</span></label>
+                <textarea name="Descrip_pro" rows="3" placeholder="Descripción del producto" class="input @error('Descrip_pro') is-invalid @enderror">{{ old('Descrip_pro', $producto->Descrip_pro) }}</textarea>
             </div>
-
-            <div class="form-group">
-                <label class="form-label">Precio</label>
-                <input type="number"
-                       name="Precio_pro"
-                       class="form-control"
-                       value="{{ old('Precio_pro', $producto->Precio_pro) }}"
-                       step="0.01"
-                       min="0"
-                       required>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+                <div>
+                    <label class="input-label">Cantidad</label>
+                    <input type="number" name="Cant_pro" value="{{ old('Cant_pro', $producto->Cant_pro) }}" required min="0" placeholder="0" class="input @error('Cant_pro') is-invalid @enderror">
+                    @error('Cant_pro')<p class="input-error">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label class="input-label">Precio</label>
+                    <div class="input-group">
+                        <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:14px;font-weight:500;pointer-events:none;z-index:1">$</span>
+                        <input type="number" step="0.01" name="Precio_pro" value="{{ old('Precio_pro', $producto->Precio_pro) }}" required min="0" placeholder="0.00" class="input @error('Precio_pro') is-invalid @enderror" style="padding-left:32px">
+                    </div>
+                    @error('Precio_pro')<p class="input-error">{{ $message }}</p>@enderror
+                </div>
             </div>
-
-            <div class="form-group">
-                <label class="form-label">Estado</label>
-                <select name="Estado_pro" class="form-control" required>
-
-                    <option value="Activo"
-                        {{ $producto->Estado_pro == 'Activo' ? 'selected' : '' }}>
-                        Activo
-                    </option>
-
-                    <option value="Inactivo"
-                        {{ $producto->Estado_pro == 'Inactivo' ? 'selected' : '' }}>
-                        Inactivo
-                    </option>
-
+            <div>
+                <label class="input-label">Estado</label>
+                <select name="Estado_pro" required class="input @error('Estado_pro') is-invalid @enderror">
+                    <option value="Disponible" {{ old('Estado_pro', $producto->Estado_pro) === 'Disponible' ? 'selected' : '' }}>Disponible</option>
+                    <option value="Agotado" {{ old('Estado_pro', $producto->Estado_pro) === 'Agotado' ? 'selected' : '' }}>Agotado</option>
+                    <option value="Descontinuado" {{ old('Estado_pro', $producto->Estado_pro) === 'Descontinuado' ? 'selected' : '' }}>Descontinuado</option>
                 </select>
+                @error('Estado_pro')<p class="input-error">{{ $message }}</p>@enderror
             </div>
-
-            <div class="form-group">
-                <label class="form-label">Descripción</label>
-                <textarea name="Descrip_pro"
-                          class="form-control"
-                          rows="4">{{ old('Descrip_pro', $producto->Descrip_pro) }}</textarea>
+            <hr class="section-divider">
+            <div style="display:flex;align-items:center;gap:12px">
+                <button type="submit" class="btn-primary">Actualizar Producto</button>
+                <a href="{{ route('productos.index') }}" class="btn-secondary">Cancelar</a>
             </div>
-
-            <div class="buttons">
-
-                <button type="submit" class="btn-orange">
-                    Actualizar Producto
-                </button>
-
-                <a href="{{ route('productos.index') }}" class="btn-secondary">
-                    Volver
-                </a>
-
-            </div>
-
         </form>
-
     </div>
-
 </div>
-
 @endsection

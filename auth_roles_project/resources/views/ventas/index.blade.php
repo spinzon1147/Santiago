@@ -1,261 +1,115 @@
 @extends('layouts.app')
 
+@section('title', 'Ventas')
+
 @section('content')
+<div class="page-header">
+    <div>
+        <h1>Ventas</h1>
+        <p>Administración y seguimiento de ventas</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+        <a href="{{ route('reportes.ventas') }}" class="btn-secondary" target="_blank" style="display:inline-flex;align-items:center;gap:8px">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v4a1 1 0 001 1h4"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2a3 3 0 016 0v2"/></svg>
+            PDF
+        </a>
+        <a href="{{ route('ventas.create') }}" class="btn-primary">+ Nueva Venta</a>
+    </div>
+</div>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+@php
+    $totalVen = $ventas->count();
+    $totalIngresos = $ventas->sum('Total_Ven');
+    $promVen = $totalVen > 0 ? $totalIngresos / $totalVen : 0;
+    $hoyVen = $ventas->filter(fn($v) => \Carbon\Carbon::parse($v->Fecha_Ven)->isToday())->count();
+@endphp
+<div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
+    <div style="flex:1;min-width:120px;background:#fff;border-radius:16px;padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,0.04);border:1px solid #e0e0e0">
+        <div style="font-size:12px;color:#80868b;font-weight:500;margin-bottom:4px">Total ventas</div>
+        <div style="font-size:24px;font-weight:700;color:#202124">{{ $totalVen }}</div>
+    </div>
+    <div style="flex:1;min-width:120px;background:#fff;border-radius:16px;padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,0.04);border:1px solid #e0e0e0">
+        <div style="font-size:12px;color:#80868b;font-weight:500;margin-bottom:4px">Ventas hoy</div>
+        <div style="font-size:24px;font-weight:700;color:#188038">{{ $hoyVen }}</div>
+    </div>
+    <div style="flex:1;min-width:120px;background:#fff;border-radius:16px;padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,0.04);border:1px solid #e0e0e0">
+        <div style="font-size:12px;color:#80868b;font-weight:500;margin-bottom:4px">Total ingresos</div>
+        <div style="font-size:24px;font-weight:700;color:#202124">${{ number_format($totalIngresos) }}</div>
+    </div>
+    <div style="flex:1;min-width:120px;background:#fff;border-radius:16px;padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,0.04);border:1px solid #e0e0e0">
+        <div style="font-size:12px;color:#80868b;font-weight:500;margin-bottom:4px">Promedio x venta</div>
+        <div style="font-size:24px;font-weight:700;color:#1a73e8">${{ number_format($promVen) }}</div>
+    </div>
+</div>
 
-<style>
-    :root {
-        --naranja: #FF6B1A;
-        --naranja-oscuro: #E85A0A;
-        --naranja-suave: #FFF0E6;
-        --crema: #FFF8F2;
-        --texto: #2D1A00;
-        --gris: #666;
-    }
-
-    body {
-        background: linear-gradient(to bottom right, #FFF8F2, #FFF1E5);
-        font-family: 'Poppins', sans-serif;
-    }
-
-    .container-custom {
-        max-width: 1100px;
-        margin: auto;
-        padding: 50px 20px;
-    }
-
-    .card-custom {
-        background: #fff;
-        border-radius: 28px;
-        padding: 30px;
-        border: 1px solid #f3d7c2;
-        box-shadow: 0 10px 35px rgba(0,0,0,0.06);
-    }
-
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 25px;
-    }
-
-    .title {
-        font-size: 28px;
-        font-weight: 700;
-        color: var(--texto);
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .title i {
-        color: var(--naranja);
-    }
-
-    .btn-orange {
-        background: var(--naranja);
-        color: white;
-        padding: 12px 22px;
-        border-radius: 50px;
-        text-decoration: none;
-        font-weight: 600;
-        transition: .2s;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .btn-orange:hover {
-        background: var(--naranja-oscuro);
-        transform: translateY(-2px);
-        color: white;
-    }
-
-    .table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-        overflow: hidden;
-        border-radius: 15px;
-    }
-
-    .table thead {
-        background: var(--naranja-suave);
-    }
-
-    .table th {
-        text-align: left;
-        padding: 14px;
-        font-weight: 600;
-        color: var(--texto);
-        font-size: 14px;
-    }
-
-    .table td {
-        padding: 14px;
-        border-top: 1px solid #f3d7c2;
-        color: var(--gris);
-        font-size: 14px;
-    }
-
-    .table tbody tr:hover {
-        background: #fff7f0;
-    }
-
-    .btn-edit {
-        background: white;
-        font-family: 'Poppins', sans-serif;
-        color: var(--naranja);
-        padding: 7px 14px;
-        border: 2px solid #E85A0A;
-        border-radius: 10px;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 13px;
-        transition: .2s;
-    }
-
-    .btn-edit:hover {
-        filter: brightness(0.95);
-        background: var(--naranja-suave);
-    }
-
-    .btn-delete {
-        background: white;
-        font-family: 'Poppins', sans-serif;
-        border: 2px solid #E85A0A;
-        color: var(--naranja);
-        padding: 7px 14px;
-        border-radius: 10px;
-        font-weight: 600;
-        font-size: 13px;
-        cursor: pointer;
-        transition: .2s;
-    }
-
-    .btn-delete:hover {
-        filter: brightness(0.9);
-        background: var(--naranja-suave);
-    }
-
-    .actions {
-        display: flex;
-        gap: 10px;
-    }
-
-    .alert-success {
-        border-radius: 15px;
-        margin-bottom: 15px;
-    }
-
-    @media (max-width: 768px) {
-        .header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 15px;
-        }
-
-        .table {
-            display: block;
-            overflow-x: auto;
-        }
-    }
-</style>
-
-<div class="container-custom">
-
-    <div class="card-custom">
-
-        <div class="header">
-
-            <div class="title">
-                <i class="fa-solid fa-cash-register"></i>
-                Ventas
-            </div>
-
-            <a href="{{ route('ventas.create') }}" class="btn-orange">
-                <i class="fa-solid fa-plus"></i>
-                Nueva Venta
-            </a>
-
+<div class="card" style="padding:16px 20px;margin-bottom:20px">
+    <form method="GET" action="{{ route('ventas.index') }}" style="display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap">
+        <div>
+            <label class="input-label" style="font-size:11px">Desde</label>
+            <input type="date" name="fecha_desde" value="{{ request('fecha_desde') }}" class="input" style="padding:10px 14px;font-size:13px;width:170px">
         </div>
+        <div>
+            <label class="input-label" style="font-size:11px">Hasta</label>
+            <input type="date" name="fecha_hasta" value="{{ request('fecha_hasta') }}" class="input" style="padding:10px 14px;font-size:13px;width:170px">
+        </div>
+        <button type="submit" class="btn-secondary" style="padding:10px 20px;font-size:13px">Buscar</button>
+        @if (request()->has('fecha_desde') || request()->has('fecha_hasta'))
+            <a href="{{ route('ventas.index') }}" class="btn-secondary" style="padding:10px 20px;font-size:13px">Limpiar</a>
+        @endif
+    </form>
+</div>
 
-
-        <table class="table">
-
+@if ($ventas->isEmpty())
+    <div class="card empty-state">
+        <svg width="64" height="64" fill="none" stroke="#cbd5e1" stroke-width="1.2" viewBox="0 0 24 24" style="margin:0 auto 16px">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/>
+        </svg>
+        <h3 style="font-size:16px;font-weight:600;color:#64748b;margin:0">No hay ventas registradas</h3>
+        <p style="font-size:14px;color:#94a3b8;margin:8px 0 20px">Registra la primera venta para comenzar</p>
+        <a href="{{ route('ventas.create') }}" class="btn-primary">Nueva Venta</a>
+    </div>
+@else
+    <div class="table-wrap">
+        <div class="table-scroll">
+        <table>
             <thead>
                 <tr>
                     <th>ID</th>
-<th>Producto</th>
-<th>Cantidad</th>
-<th>Precio Unitario</th>
-<th>Total</th>
-<th>Fecha</th>
-<th>Acciones</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Total</th>
+                    <th>Fecha</th>
+                    <th style="text-align:right">Acciones</th>
                 </tr>
             </thead>
-
             <tbody>
-
-            @foreach($ventas as $venta)
-
+                @foreach ($ventas as $venta)
                 <tr>
-
-<td>{{ $venta->Id_Ven }}</td>
-
-<td>{{ $venta->producto?->Nom_pro }}</td>
-
-<td>{{ $venta->Cant_Ven }}</td>
-
-<td>
-    ${{ number_format($venta->producto->Precio_pro, 0, ',', '.') }}
-</td>
-
-<td>
-    ${{ number_format($venta->producto->Precio_pro * $venta->Cant_Ven, 0, ',', '.') }}
-</td>
-
-<td>
-    {{ \Carbon\Carbon::parse($venta->Fecha_Ven)->format('d/m/Y h:i A') }}
-</td>
+                    <td style="font-weight:600;color:#0f172a">{{ $venta->Id_Ven }}</td>
+                    <td style="font-weight:500">{{ $venta->producto->Nom_pro ?? '—' }}</td>
                     <td>
-
-                        <div class="actions">
-
-                            <a href="{{ route('ventas.edit',$venta->Id_Ven) }}" class="btn-edit">
-                                Editar
-                            </a>
-
-                            <form action="{{ route('ventas.destroy',$venta->Id_Ven) }}" method="POST">
-
-                                @csrf
-                                @method('DELETE')
-
-                                <button
-                                    type="submit"
-                                    class="btn-delete"
-                                    onclick="return confirm('¿Eliminar esta venta?')">
-                                    Eliminar
-                                </button>
-
-                            </form>
-
-                        </div>
-
+                        <span style="font-weight:600;color:#0f172a">{{ $venta->Cant_Ven }}</span>
+                        <span style="font-size:12px;color:#94a3b8;margin-left:2px">uds</span>
                     </td>
-
+                    <td style="font-weight:600">${{ number_format($venta->Total_Ven, 2) }}</td>
+                    <td style="color:#64748b;font-size:13px">{{ $venta->Fecha_Ven ? \Carbon\Carbon::parse($venta->Fecha_Ven)->format('d/m/Y h:i A') : '—' }}</td>
+                    <td style="text-align:right">
+                        <div style="display:flex;align-items:center;justify-content:flex-end;gap:6px">
+                            <a href="{{ route('ventas.factura', $venta->Id_Ven) }}" class="action-link" style="color:#059669" target="_blank">Factura</a>
+                            @if (Auth::user()->isAdmin())
+                            <a href="{{ route('ventas.edit', $venta->Id_Ven) }}" class="action-link action-link-edit">Editar</a>
+                            <form action="{{ route('ventas.destroy', $venta->Id_Ven) }}" method="POST" style="margin:0" onsubmit="return confirm('¿Eliminar esta venta?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="action-link action-link-delete">Eliminar</button>
+                            </form>
+                            @endif
+                        </div>
+                    </td>
                 </tr>
-
-            @endforeach
-
+                @endforeach
             </tbody>
-
         </table>
-
+        </div>
     </div>
-
-</div>
-
+@endif
 @endsection

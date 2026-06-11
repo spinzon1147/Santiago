@@ -1,134 +1,34 @@
-<section class="reset-section">
+<x-guest-layout>
+    <h2 style="font-size:22px;font-weight:700;color:#0f172a;letter-spacing:-0.3px;margin:0 0 4px 0">Restablecer Contraseña</h2>
+    <p style="font-size:14px;color:#94a3b8;margin:0 0 28px 0">Ingresa tu nueva contraseña</p>
 
-<style>
-    :root {
-        --naranja: #FF6B1A;
-        --naranja-oscuro: #E85A0A;
-        --crema: #FFF8F2;
-        --texto: #2D1A00;
-    }
+    @if ($errors->any())
+        <div class="error-box">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-    .reset-section {
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: var(--crema);
-        padding: 20px;
-    }
-
-    .card {
-        background: white;
-        width: 100%;
-        max-width: 450px;
-        padding: 30px;
-        border-radius: 25px;
-        border: 2px solid #FFD4B0;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-    }
-
-    .title {
-        font-family: 'Baloo 2', cursive;
-        font-size: 1.6rem;
-        margin-bottom: 15px;
-        color: var(--texto);
-        text-align: center;
-    }
-
-    label {
-        font-weight: 700;
-        font-size: 14px;
-        display: block;
-        margin-bottom: 5px;
-    }
-
-    input {
-        width: 100%;
-        padding: 10px 12px;
-        border-radius: 12px;
-        border: 1px solid #ddd;
-        margin-bottom: 15px;
-        outline: none;
-    }
-
-    input:focus {
-        border-color: var(--naranja);
-    }
-
-    .btn-primary {
-        width: 100%;
-        background: var(--naranja);
-        color: white;
-        padding: 12px;
-        border-radius: 50px;
-        border: none;
-        font-weight: 800;
-        cursor: pointer;
-    }
-
-    .btn-primary:hover {
-        background: var(--naranja-oscuro);
-    }
-
-    .error {
-        color: red;
-        font-size: 13px;
-        margin-top: -10px;
-        margin-bottom: 10px;
-    }
-</style>
-
-<div class="card">
-
-    <div class="title">🔑 Restablecer contraseña</div>
-
-    <form method="POST" action="{{ route('password.store') }}">
+    <form method="POST" action="{{ route('password.store') }}" style="display:flex;flex-direction:column;gap:20px">
         @csrf
-
-        <!-- TOKEN -->
         <input type="hidden" name="token" value="{{ $request->route('token') }}">
-
-        <!-- EMAIL -->
-        <label>Email</label>
-        <input 
-            type="email"
-            name="email"
-            value="{{ old('email', $request->email) }}"
-            required
-            autofocus
-        >
-        @error('email')
-            <div class="error">{{ $message }}</div>
-        @enderror
-
-        <!-- PASSWORD -->
-        <label>Nueva contraseña</label>
-        <input 
-            type="password"
-            name="password"
-            required
-        >
-        @error('password')
-            <div class="error">{{ $message }}</div>
-        @enderror
-
-        <!-- CONFIRM -->
-        <label>Confirmar contraseña</label>
-        <input 
-            type="password"
-            name="password_confirmation"
-            required
-        >
-        @error('password_confirmation')
-            <div class="error">{{ $message }}</div>
-        @enderror
-
-        <button type="submit" class="btn-primary">
-            Restablecer contraseña
-        </button>
-
+        <div>
+            <label class="input-label">Correo Electrónico</label>
+            <input type="email" name="email" value="{{ old('email', $request->email) }}" required autofocus placeholder="correo@empresa.com" class="input">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div>
+                <label class="input-label">Nueva Contraseña</label>
+                <input type="password" name="password" required placeholder="Mínimo 6 caracteres" class="input">
+            </div>
+            <div>
+                <label class="input-label">Confirmar</label>
+                <input type="password" name="password_confirmation" required placeholder="Repite la contraseña" class="input">
+            </div>
+        </div>
+        <button type="submit" class="btn-primary" style="width:100%">Restablecer Contraseña</button>
     </form>
-
-</div>
-
-</section>
+</x-guest-layout>

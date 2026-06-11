@@ -1,90 +1,9 @@
-<section class="register-section">
-
-<style>
-    :root {
-        --naranja: #FF6B1A;
-        --naranja-oscuro: #E85A0A;
-        --crema: #FFF8F2;
-        --texto: #2D1A00;
-    }
-
-    .register-section {
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: var(--crema);
-        padding: 20px;
-    }
-
-    .card {
-        background: white;
-        width: 100%;
-        max-width: 450px;
-        padding: 30px;
-        border-radius: 25px;
-        border: 2px solid #FFD4B0;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-    }
-
-    .title {
-        font-family: 'Baloo 2', cursive;
-        font-size: 1.6rem;
-        margin-bottom: 20px;
-        text-align: center;
-        color: var(--texto);
-    }
-
-    label {
-        font-weight: 700;
-        font-size: 14px;
-        display: block;
-        margin-bottom: 5px;
-    }
-
-    input {
-        width: 100%;
-        padding: 10px 12px;
-        border-radius: 12px;
-        border: 1px solid #ddd;
-        margin-bottom: 15px;
-        outline: none;
-    }
-
-    input:focus {
-        border-color: var(--naranja);
-    }
-
-    .btn-primary {
-        width: 100%;
-        background: var(--naranja);
-        color: white;
-        padding: 12px;
-        border-radius: 50px;
-        border: none;
-        font-weight: 800;
-        cursor: pointer;
-        margin-top: 10px;
-    }
-
-    .btn-primary:hover {
-        background: var(--naranja-oscuro);
-    }
-
-    .error {
-        color: red;
-        font-size: 13px;
-        margin-top: -10px;
-        margin-bottom: 10px;
-    }
-</style>
-
-<div class="card">
-
-    <div class="title">🐶 Crear cuenta en PataFeliz</div>
+<x-guest-layout>
+    <h2 style="font-size:22px;font-weight:700;color:#0f172a;letter-spacing:-0.3px;margin:0 0 4px 0">Crear Cuenta</h2>
+    <p style="font-size:14px;color:#94a3b8;margin:0 0 28px 0">Regístrate en el sistema administrativo</p>
 
     @if ($errors->any())
-        <div class="error">
+        <div class="error-box">
             <ul>
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -93,50 +12,30 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('register') }}">
+    <form method="POST" action="{{ route('register') }}" style="display:flex;flex-direction:column;gap:20px">
         @csrf
-
-        <!-- NAME -->
-        <label>Nombre</label>
-        <input 
-            type="text"
-            name="name"
-            value="{{ old('name') }}"
-            required
-            autofocus
-        >
-
-        <!-- EMAIL -->
-        <label>Correo electrónico</label>
-        <input 
-            type="email"
-            name="email"
-            value="{{ old('email') }}"
-            required
-        >
-
-        <!-- PASSWORD -->
-        <label>Contraseña</label>
-        <input 
-            type="password"
-            name="password"
-            required
-        >
-
-        <!-- CONFIRM -->
-        <label>Confirmar contraseña</label>
-        <input 
-            type="password"
-            name="password_confirmation"
-            required
-        >
-
-        <button type="submit" class="btn-primary">
-            Registrarme 🐾
-        </button>
-
+        <div>
+            <label class="input-label">Nombre</label>
+            <input type="text" name="name" value="{{ old('name') }}" required autofocus placeholder="Nombre completo" class="input">
+        </div>
+        <div>
+            <label class="input-label">Correo Electrónico</label>
+            <input type="email" name="email" value="{{ old('email') }}" required placeholder="correo@ejemplo.com" class="input">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div>
+                <label class="input-label">Contraseña</label>
+                <input type="password" name="password" required placeholder="Mínimo 6 caracteres" class="input">
+            </div>
+            <div>
+                <label class="input-label">Confirmar</label>
+                <input type="password" name="password_confirmation" required placeholder="Repite la contraseña" class="input">
+            </div>
+        </div>
+        <button type="submit" class="btn-primary" style="width:100%">Crear Cuenta</button>
+        <p style="text-align:center;font-size:14px;color:#64748b;margin:0">
+            ¿Ya tienes cuenta?
+            <a href="{{ route('login') }}" style="color:#ea580c;font-weight:600;text-decoration:none">Inicia sesión</a>
+        </p>
     </form>
-
-</div>
-
-</section>
+</x-guest-layout>

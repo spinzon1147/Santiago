@@ -1,122 +1,23 @@
-<section class="verify-section">
+<x-guest-layout>
+    <h2 style="font-size:22px;font-weight:700;color:#0f172a;letter-spacing:-0.3px;margin:0 0 4px 0">Verifica tu Correo</h2>
+    <p style="font-size:14px;color:#94a3b8;margin:0 0 28px 0">Se ha enviado un enlace de verificación a tu correo electrónico</p>
 
-<style>
-    :root {
-        --naranja: #FF6B1A;
-        --naranja-oscuro: #E85A0A;
-        --crema: #FFF8F2;
-        --texto: #2D1A00;
-    }
-
-    .verify-section {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        background: var(--crema);
-    }
-
-    .card {
-        background: white;
-        max-width: 500px;
-        width: 100%;
-        padding: 30px;
-        border-radius: 25px;
-        border: 2px solid #FFD4B0;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        text-align: center;
-    }
-
-    .title {
-        font-family: 'Baloo 2', cursive;
-        font-size: 1.6rem;
-        margin-bottom: 10px;
-        color: var(--texto);
-    }
-
-    .text {
-        font-size: 14px;
-        color: #7A4A1A;
-        line-height: 1.6;
-        margin-bottom: 20px;
-    }
-
-    .alert-success {
-        color: #1a7f37;
-        font-size: 13px;
-        margin-bottom: 15px;
-    }
-
-    .btn-primary {
-        background: var(--naranja);
-        color: white;
-        border: none;
-        padding: 10px 18px;
-        border-radius: 50px;
-        font-weight: 700;
-        cursor: pointer;
-    }
-
-    .btn-primary:hover {
-        background: var(--naranja-oscuro);
-    }
-
-    .btn-link {
-        background: none;
-        border: none;
-        color: #666;
-        text-decoration: underline;
-        cursor: pointer;
-        font-size: 14px;
-        margin-top: 15px;
-    }
-
-    .actions {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 20px;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-</style>
-
-<div class="card">
-
-    <div class="title">📩 Verifica tu correo</div>
-
-    <p class="text">
-        Te hemos enviado un enlace de verificación.  
-        Revisa tu correo antes de continuar 🐶
-    </p>
-
-    @if (session('status') == 'verification-link-sent')
-        <div class="alert-success">
-            Se envió un nuevo enlace de verificación ✔️
-        </div>
+    @if (session('status') === 'verification-link-sent')
+        <div class="success-box">Un nuevo enlace de verificación ha sido enviado.</div>
     @endif
 
-    <div class="actions">
-
-        <!-- reenviar correo -->
+    <div style="display:flex;flex-direction:column;gap:12px">
         <form method="POST" action="{{ route('verification.send') }}">
             @csrf
-            <button type="submit" class="btn-primary">
-                Reenviar correo
-            </button>
+            <button type="submit" class="btn-primary" style="width:100%">Reenviar Correo de Verificación</button>
         </form>
-
-        <!-- logout -->
         <form method="POST" action="{{ route('logout') }}">
             @csrf
-            <button type="submit" class="btn-link">
-                Cerrar sesión
-            </button>
+            <button type="submit" style="display:block;width:100%;padding:14px 24px;border-radius:12px;border:none;font-size:14px;font-weight:500;color:#64748b;background:transparent;cursor:pointer;transition:all 0.2s" class="btn-ghost">Cerrar Sesión</button>
         </form>
-
     </div>
+</x-guest-layout>
 
-</div>
-
-</section>
+<style>
+    .btn-ghost:hover{color:#0f172a !important;background:#f1f5f9 !important}
+</style>

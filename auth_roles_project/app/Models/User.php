@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Models\Role;
 
 class User extends Authenticatable
 {
@@ -27,9 +27,23 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    // Relación con Role
-    public function role(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role?->name === 'admin';
+    }
+
+    public function scopeAdmins($query)
+    {
+        return $query->whereHas('role', fn ($q) => $q->where('name', 'admin'));
+    }
+
+    public function scopeUsers($query)
+    {
+        return $query->whereHas('role', fn ($q) => $q->where('name', 'user'));
     }
 }

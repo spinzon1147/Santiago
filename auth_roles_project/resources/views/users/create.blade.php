@@ -1,191 +1,66 @@
 @extends('layouts.app')
 
+@section('title', 'Nuevo Usuario')
+
 @section('content')
+<div style="max-width:640px;margin:0 auto">
+    <a href="{{ route('users.index') }}" class="back-link">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        Volver a Usuarios
+    </a>
+    <h1 style="font-size:26px;font-weight:700;color:#0f172a;letter-spacing:-0.5px;margin:0 0 24px 0">Nuevo Usuario</h1>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<style>
-    :root {
-        --naranja: #FF6B1A;
-        --naranja-oscuro: #E85A0A;
-        --crema: #FFF8F2;
-        --texto: #2D1A00;
-        --gris: #666;
-    }
-
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: 'Poppins', sans-serif;
-    }
-
-    body {
-        background: linear-gradient(135deg, #FFF8F2, #FFF1E5);
-    }
-
-    .form-container {
-        max-width: 750px;
-        margin: auto;
-        padding: 60px 20px;
-    }
-
-    .form-card {
-        background: #fff;
-        border-radius: 28px;
-        padding: 40px;
-        border: 1px solid #f3d7c2;
-        box-shadow: 0 10px 35px rgba(0,0,0,0.06);
-    }
-
-    .title {
-        font-size: 1.9rem;
-        font-weight: 700;
-        color: var(--texto);
-        margin-bottom: 25px;
-        letter-spacing: -0.5px;
-    }
-
-    .title span {
-        color: var(--naranja);
-    }
-
-    label {
-        font-weight: 600;
-        font-size: 14px;
-        color: var(--texto);
-        margin-bottom: 6px;
-        display: block;
-    }
-
-    input, select {
-        width: 100%;
-        padding: 14px 16px;
-        border-radius: 14px;
-        border: 1px solid #e5e5e5;
-        margin-bottom: 18px;
-        outline: none;
-        font-size: 14px;
-        transition: .2s;
-    }
-
-    input:focus, select:focus {
-        border-color: var(--naranja);
-        box-shadow: 0 0 0 4px rgba(255,107,26,0.12);
-    }
-
-    .btn-primary {
-        background: var(--naranja);
-        color: white;
-        padding: 12px 22px;
-        border-radius: 50px;
-        border: none;
-        font-weight: 600;
-        cursor: pointer;
-        font-size: 14px;
-        transition: .2s;
-    }
-
-    .btn-primary:hover {
-        background: var(--naranja-oscuro);
-        transform: translateY(-1px);
-    }
-
-    .btn-secondary {
-        background: #fff;
-        color: var(--texto);
-        padding: 12px 22px;
-        border-radius: 50px;
-        border: 1px solid #eee;
-        text-decoration: none;
-        margin-left: 10px;
-        display: inline-block;
-        font-size: 14px;
-        transition: .2s;
-    }
-
-    .btn-secondary:hover {
-        background: var(--crema);
-        color: var(--naranja);
-        border-color: #f3d7c2;
-    }
-
-    .error-box {
-        background: #fff1f1;
-        border: 1px solid #ffd2d2;
-        color: #b00020;
-        padding: 12px 15px;
-        border-radius: 14px;
-        margin-bottom: 20px;
-        font-size: 14px;
-    }
-
-    .error-box ul {
-        margin: 0;
-        padding-left: 18px;
-    }
-
-    @media(max-width: 768px) {
-        .form-card {
-            padding: 30px 20px;
-        }
-    }
-</style>
-
-<div class="form-container">
-
-    <div class="form-card">
-
-        <div class="title">
-            <span>Crear</span> Usuario
-        </div>
-
-        @if ($errors->any())
-            <div class="error-box">
-                <ul>
+    <div class="card">
+        <form action="{{ route('users.store') }}" method="POST" style="display:flex;flex-direction:column;gap:20px">
+            @csrf
+            @if ($errors->any())
+            <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:16px 20px;margin-bottom:8px">
+                <p style="font-size:14px;font-weight:600;color:#b91c1c;margin:0 0 8px">Corrige los siguientes errores:</p>
+                <ul style="margin:0;padding-left:16px">
                     @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
+                    <li style="font-size:13px;color:#ef4444;margin-bottom:4px">{{ $error }}</li>
                     @endforeach
                 </ul>
             </div>
-        @endif
-
-        <form action="{{ route('users.store') }}" method="POST">
-            @csrf
-
-            <label>Nombre</label>
-            <input type="text" name="name" value="{{ old('name') }}" required>
-
-            <label>Email</label>
-            <input type="email" name="email" value="{{ old('email') }}" required>
-
-            <label>Contraseña</label>
-            <input type="password" name="password" required>
-
-            <label>Confirmar contraseña</label>
-            <input type="password" name="password_confirmation" required>
-
-            <label>Rol</label>
-            <select name="role_id" required>
-                @foreach($roles as $role)
-                    <option value="{{ $role->id }}">
-                        {{ $role->name }}
-                    </option>
-                @endforeach
-            </select>
-
-            <button type="submit" class="btn-primary">
-                Guardar
-            </button>
-
-            <a href="{{ route('users.index') }}" class="btn-secondary">
-                Cancelar
-            </a>
-
+            @endif
+            <div>
+                <label class="input-label">Nombre</label>
+                <input type="text" name="name" value="{{ old('name') }}" required placeholder="Nombre completo" class="input @error('name') is-invalid @enderror">
+                @error('name') <p class="input-error">{{ $message }}</p> @enderror
+            </div>
+            <div>
+                <label class="input-label">Email</label>
+                <input type="email" name="email" value="{{ old('email') }}" required placeholder="correo@ejemplo.com" class="input @error('email') is-invalid @enderror">
+                @error('email') <p class="input-error">{{ $message }}</p> @enderror
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+                <div>
+                    <label class="input-label">Contraseña</label>
+                    <input type="password" name="password" required placeholder="Mínimo 6 caracteres" class="input @error('password') is-invalid @enderror">
+                    @error('password') <p class="input-error">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label class="input-label">Confirmar Contraseña</label>
+                    <input type="password" name="password_confirmation" required placeholder="Repite la contraseña" class="input @error('password_confirmation') is-invalid @enderror">
+                    @error('password_confirmation') <p class="input-error">{{ $message }}</p> @enderror
+                </div>
+            </div>
+            <div>
+                <label class="input-label">Rol</label>
+                <select name="role_id" required class="input @error('role_id') is-invalid @enderror">
+                    <option value="" disabled {{ !old('role_id') ? 'selected' : '' }}>Seleccionar rol...</option>
+                    @foreach ($roles as $role)
+                        <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>{{ ucfirst($role->name) }}</option>
+                    @endforeach
+                </select>
+                @error('role_id') <p class="input-error">{{ $message }}</p> @enderror
+            </div>
+            <hr class="section-divider">
+            <div style="display:flex;align-items:center;gap:12px">
+                <button type="submit" class="btn-primary">Crear Usuario</button>
+                <a href="{{ route('users.index') }}" class="btn-secondary">Cancelar</a>
+            </div>
         </form>
-
     </div>
-
 </div>
-
 @endsection
