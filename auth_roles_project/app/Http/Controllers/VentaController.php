@@ -19,7 +19,8 @@ class VentaController extends Controller
 {
     public function __construct(
         private readonly StockService $stockService
-    ) {}
+    ) {
+    }
 
     public function index(Request $request): View
     {

@@ -90,7 +90,7 @@
                         <div style="display:flex;align-items:center;justify-content:flex-end;gap:6px">
                             @if (Auth::user()->isAdmin())
                             <a href="{{ route('inventarios.edit', $inventario->Id_Inven) }}" class="action-link action-link-edit">Editar</a>
-                            <form action="{{ route('inventarios.destroy', $inventario->Id_Inven) }}" method="POST" style="margin:0" onsubmit="return confirm('¿Eliminar este registro?')">
+                            <form action="{{ route('inventarios.destroy', $inventario->Id_Inven) }}" method="POST" style="margin:0" onsubmit="confirmDelete(event, '¿Eliminar este registro?')">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="action-link action-link-delete">Eliminar</button>
                             </form>

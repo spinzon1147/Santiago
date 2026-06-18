@@ -85,7 +85,7 @@
                         @if (Auth::user()->isAdmin())
                         <div style="display:flex;align-items:center;justify-content:flex-end;gap:6px">
                             <a href="{{ route('clientes.edit', $cliente->Id_Cli) }}" class="action-link action-link-edit">Editar</a>
-                            <form action="{{ route('clientes.destroy', $cliente->Id_Cli) }}" method="POST" style="margin:0" onsubmit="return confirm('¿Eliminar este cliente?')">
+                            <form action="{{ route('clientes.destroy', $cliente->Id_Cli) }}" method="POST" style="margin:0" onsubmit="confirmDelete(event, '¿Eliminar este cliente?')">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="action-link action-link-delete">Eliminar</button>
                             </form>

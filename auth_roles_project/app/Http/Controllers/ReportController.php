@@ -46,9 +46,9 @@ class ReportController extends Controller
     {
         $productos = Producto::orderBy('Nom_pro')->get();
         $totalStock = $productos->sum('Cant_pro');
-        $totalValor = $productos->sum(fn($p) => $p->Cant_pro * $p->Precio_pro);
-        $bajoStock = $productos->filter(fn($p) => $p->Cant_pro > 0 && $p->Cant_pro <= 5)->count();
-        $agotados = $productos->filter(fn($p) => $p->Cant_pro <= 0)->count();
+        $totalValor = $productos->sum(fn ($p) => $p->Cant_pro * $p->Precio_pro);
+        $bajoStock = $productos->filter(fn ($p) => $p->Cant_pro > 0 && $p->Cant_pro <= 5)->count();
+        $agotados = $productos->filter(fn ($p) => $p->Cant_pro <= 0)->count();
         $disponibles = $productos->count() - $bajoStock - $agotados;
         $promedioPrecio = $productos->count() > 0 ? $productos->avg('Precio_pro') : 0;
         $precioMax = $productos->max('Precio_pro') ?? 0;

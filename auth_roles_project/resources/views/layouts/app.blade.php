@@ -98,6 +98,23 @@
         /* Back link */
         .back-link{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:500;color:#94a3b8;text-decoration:none;margin-bottom:16px;transition:color 0.2s}
         .back-link:hover{color:#64748b}
+
+        /* Delete Modal */
+        .modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,0.45);backdrop-filter:blur(4px);z-index:9999;align-items:center;justify-content:center;animation:fadeIn .2s ease}
+        .modal-overlay.active{display:flex}
+        .modal-box{background:#fff;border-radius:20px;padding:32px;max-width:380px;width:90%;box-shadow:0 24px 64px rgba(0,0,0,0.15);text-align:center;animation:scaleIn .25s cubic-bezier(.34,1.56,.64,1)}
+        .modal-icon{width:56px;height:56px;border-radius:16px;background:#fef2f2;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+        .modal-icon svg{color:#ef4444}
+        .modal-title{font-size:18px;font-weight:700;color:#0f172a;margin-bottom:8px}
+        .modal-desc{font-size:14px;color:#64748b;margin-bottom:24px;line-height:1.5}
+        .modal-actions{display:flex;gap:12px}
+        .modal-actions button{flex:1;padding:12px;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+        .modal-btn-cancel{background:#f1f5f9;border:1px solid #e2e8f0;color:#64748b}
+        .modal-btn-cancel:hover{background:#e2e8f0}
+        .modal-btn-delete{background:linear-gradient(135deg,#f87171,#ef4444);border:none;color:#fff;box-shadow:0 4px 16px rgba(239,68,68,0.25)}
+        .modal-btn-delete:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(239,68,68,0.35)}
+        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+        @keyframes scaleIn{from{opacity:0;transform:scale(.9) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
     </style>
 </head>
 <body>
@@ -144,6 +161,53 @@
                 });
             }
         })();
+    </script>
+
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal-box">
+            <div class="modal-icon">
+                <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+                </svg>
+            </div>
+            <div class="modal-title" id="modalTitle">¿Eliminar registro?</div>
+            <div class="modal-desc" id="modalDesc">Esta acci&oacute;n no se puede deshacer.</div>
+            <div class="modal-actions">
+                <button class="modal-btn-cancel" onclick="closeDeleteModal()">Cancelar</button>
+                <button class="modal-btn-delete" id="modalConfirmBtn">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var pendingForm = null;
+
+        function confirmDelete(event, msg) {
+            event.preventDefault();
+            pendingForm = event.target;
+            document.getElementById('modalTitle').textContent = msg || '¿Eliminar registro?';
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+            pendingForm = null;
+        }
+
+        document.getElementById('modalConfirmBtn').addEventListener('click', function() {
+            if (pendingForm) {
+                pendingForm.submit();
+            }
+            closeDeleteModal();
+        });
+
+        document.getElementById('deleteModal').addEventListener('click', function(e) {
+            if (e.target === this) closeDeleteModal();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeDeleteModal();
+        });
     </script>
 </body>
 </html>

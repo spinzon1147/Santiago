@@ -50,8 +50,12 @@ class Producto extends Model
 
     public function getStockLabelAttribute(): string
     {
-        if ($this->Cant_pro <= 0) return 'Agotado';
-        if ($this->Cant_pro <= 5) return 'Bajo';
+        if ($this->Cant_pro <= 0) {
+            return 'Agotado';
+        }
+        if ($this->Cant_pro <= 5) {
+            return 'Bajo';
+        }
         return 'Disponible';
     }
 }

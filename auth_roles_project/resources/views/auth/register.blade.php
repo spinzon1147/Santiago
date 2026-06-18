@@ -25,7 +25,7 @@
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
             <div>
                 <label class="input-label">Contraseña</label>
-                <input type="password" name="password" required placeholder="Mínimo 6 caracteres" class="input">
+                <input type="password" name="password" required placeholder="Contraseña" class="input">
             </div>
             <div>
                 <label class="input-label">Confirmar</label>

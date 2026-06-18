@@ -15,7 +15,8 @@ class InventarioController extends Controller
 {
     public function __construct(
         private readonly StockService $stockService
-    ) {}
+    ) {
+    }
 
     public function index(Request $request): View
     {
@@ -23,7 +24,7 @@ class InventarioController extends Controller
 
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->whereHas('producto', fn($q) => $q->where('Nom_pro', 'like', "%{$search}%"));
+            $query->whereHas('producto', fn ($q) => $q->where('Nom_pro', 'like', "%{$search}%"));
         }
 
         $inventarios = $query->paginate(15);

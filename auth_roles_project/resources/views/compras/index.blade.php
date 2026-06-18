@@ -105,7 +105,7 @@
                         <div style="display:flex;align-items:center;justify-content:flex-end;gap:6px">
                             @if (Auth::user()->isAdmin())
                             <a href="{{ route('compras.edit', $compra->Id_Com) }}" class="action-link action-link-edit">Editar</a>
-                            <form action="{{ route('compras.destroy', $compra->Id_Com) }}" method="POST" style="margin:0" onsubmit="return confirm('¿Eliminar esta compra?')">
+                            <form action="{{ route('compras.destroy', $compra->Id_Com) }}" method="POST" style="margin:0" onsubmit="confirmDelete(event, '¿Eliminar esta compra?')">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="action-link action-link-delete">Eliminar</button>
                             </form>

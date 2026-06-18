@@ -102,7 +102,7 @@
                             <a href="{{ route('ventas.factura', $venta->Id_Ven) }}" class="action-link" style="color:#059669" target="_blank">Factura</a>
                             @if (Auth::user()->isAdmin())
                             <a href="{{ route('ventas.edit', $venta->Id_Ven) }}" class="action-link action-link-edit">Editar</a>
-                            <form action="{{ route('ventas.destroy', $venta->Id_Ven) }}" method="POST" style="margin:0" onsubmit="return confirm('¿Eliminar esta venta?')">
+                            <form action="{{ route('ventas.destroy', $venta->Id_Ven) }}" method="POST" style="margin:0" onsubmit="confirmDelete(event, '¿Eliminar esta venta?')">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="action-link action-link-delete">Eliminar</button>
                             </form>
