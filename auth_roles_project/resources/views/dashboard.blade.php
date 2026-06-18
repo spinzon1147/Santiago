@@ -37,6 +37,7 @@
                 </div>
             </div>
             <p style="font-size:15px;color:#94a3b8">Panel de control — Homero Pet Shop</p>
+            <p style="font-size:13px;color:#a3aab6;margin-top:2px">Cra 73D #35B-31 Sur &bull; Tel: 310 2326494 &bull; info@homeropetshop.com</p>
         </div>
         <div style="display:flex;gap:10px">
             <a href="{{ route('ventas.create') }}" class="btn-primary" style="padding:11px 22px;font-size:13px">

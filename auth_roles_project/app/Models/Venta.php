@@ -28,6 +28,11 @@ class Venta extends Model
         return $this->belongsTo(Producto::class, 'Id_Prod_FK', 'Id_pro');
     }
 
+    public function getSubtotalAttribute(): float
+    {
+        return (float) $this->Total_Ven;
+    }
+
     public function scopeByDate($query, $date)
     {
         return $query->whereDate('Fecha_Ven', $date);

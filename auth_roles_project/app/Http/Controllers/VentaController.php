@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cliente;
+use App\Models\DetalleVenta;
 use App\Models\FacturaVenta;
 use App\Models\Producto;
 use App\Models\Venta;
@@ -12,6 +13,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
 
 class VentaController extends Controller
 {
@@ -23,6 +25,12 @@ class VentaController extends Controller
     {
         $query = Venta::with('producto');
 
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('producto', function ($q) use ($search) {
+                $q->where('Nom_pro', 'LIKE', "%{$search}%");
+            });
+        }
         if ($request->filled('fecha_desde')) {
             $query->whereDate('Fecha_Ven', '>=', $request->fecha_desde);
         }
@@ -30,7 +38,7 @@ class VentaController extends Controller
             $query->whereDate('Fecha_Ven', '<=', $request->fecha_hasta);
         }
 
-        $ventas = $query->orderBy('Fecha_Ven', 'desc')->get();
+        $ventas = $query->orderBy('Fecha_Ven', 'desc')->paginate(15);
 
         return view('ventas.index', compact('ventas'));
     }
@@ -51,31 +59,42 @@ class VentaController extends Controller
             return back()->with('error', 'Stock insuficiente en el producto seleccionado');
         }
 
-        $total = $this->stockService->calculateTotal($producto, $request->Cant_Ven);
+        DB::transaction(function () use ($request, $producto) {
+            $total = $this->stockService->calculateTotal($producto, $request->Cant_Ven);
 
-        $venta = Venta::create([
-            'Id_Prod_FK' => $request->Id_Prod_FK,
-            'Cant_Ven' => $request->Cant_Ven,
-            'Total_Ven' => $total,
-            'Fecha_Ven' => $request->Fecha_Ven,
-        ]);
-
-        $this->stockService->decrementStock($producto, $request->Cant_Ven);
-
-        if ($request->filled('Id_Cli')) {
-            $subtotal = $total;
-            $iva = $subtotal * 0.19;
-            $totalFact = $subtotal + $iva;
-
-            FacturaVenta::create([
-                'Fecha_Fact' => now(),
-                'Subtotal_Fact' => (int) round($subtotal),
-                'Iva_Fact' => (int) round($iva),
-                'Total_Fact' => (int) round($totalFact),
-                'Id_Cli_FK_FACTURA_VENTA' => $request->Id_Cli,
-                'Estado_Fact' => 'Pagada',
+            $venta = Venta::create([
+                'Id_Prod_FK' => $request->Id_Prod_FK,
+                'Cant_Ven' => $request->Cant_Ven,
+                'Total_Ven' => $total,
+                'Fecha_Ven' => $request->Fecha_Ven,
             ]);
-        }
+
+            DetalleVenta::create([
+                'Id_Ven_FK' => $venta->Id_Ven,
+                'Id_Prod_FK' => $request->Id_Prod_FK,
+                'Cantidad' => $request->Cant_Ven,
+                'Precio' => $producto->Precio_pro,
+                'Subtotal' => $total,
+            ]);
+
+            $this->stockService->decrementStock($producto, $request->Cant_Ven);
+
+            if ($request->filled('Id_Cli')) {
+                $subtotal = $total;
+                $iva = $subtotal * 0.19;
+                $totalFact = $subtotal + $iva;
+
+                FacturaVenta::create([
+                    'Fecha_Fact' => now(),
+                    'Subtotal_Fact' => (int) round($subtotal),
+                    'Iva_Fact' => (int) round($iva),
+                    'Total_Fact' => (int) round($totalFact),
+                    'Id_Cli_FK_FACTURA_VENTA' => $request->Id_Cli,
+                    'Id_Ven_FK' => $venta->Id_Ven,
+                    'Estado_Fact' => 'Pagada',
+                ]);
+            }
+        });
 
         return redirect()
             ->route('ventas.index')
@@ -91,10 +110,6 @@ class VentaController extends Controller
 
     public function edit(string $id): View
     {
-        if (!auth()->user()->isAdmin()) {
-            abort(403, 'No tienes permiso para modificar ventas.');
-        }
-
         $venta = Venta::findOrFail($id);
         $productos = Producto::all();
 
@@ -103,10 +118,6 @@ class VentaController extends Controller
 
     public function update(StoreVentaRequest $request, string $id): RedirectResponse
     {
-        if (!auth()->user()->isAdmin()) {
-            abort(403, 'No tienes permiso para modificar ventas.');
-        }
-
         $venta = Venta::findOrFail($id);
         $productoAnterior = Producto::find($venta->Id_Prod_FK);
         $productoNuevo = Producto::findOrFail($request->Id_Prod_FK);
@@ -138,10 +149,6 @@ class VentaController extends Controller
 
     public function destroy(string $id): RedirectResponse
     {
-        if (!auth()->user()->isAdmin()) {
-            abort(403, 'No tienes permiso para eliminar ventas.');
-        }
-
         $venta = Venta::findOrFail($id);
         $producto = Producto::find($venta->Id_Prod_FK);
 
@@ -160,8 +167,7 @@ class VentaController extends Controller
     {
         $venta = Venta::with('producto')->findOrFail($id);
         $factura = FacturaVenta::with('cliente')
-            ->whereDate('Fecha_Fact', $venta->Fecha_Ven)
-            ->where('Subtotal_Fact', (int) round($venta->Total_Ven))
+            ->where('Id_Ven_FK', $venta->Id_Ven)
             ->first();
 
         if (!$factura) {
@@ -171,6 +177,7 @@ class VentaController extends Controller
                 'Iva_Fact' => (int) round($venta->Total_Ven * 0.19),
                 'Total_Fact' => (int) round($venta->Total_Ven * 1.19),
                 'Id_Cli_FK_FACTURA_VENTA' => null,
+                'Id_Ven_FK' => $venta->Id_Ven,
                 'Estado_Fact' => 'Pagada',
             ]);
         }

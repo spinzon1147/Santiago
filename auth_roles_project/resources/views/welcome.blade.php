@@ -81,7 +81,7 @@
             @endauth
         @endif
 
-        <div class="footer">Acceso restringido para personal autorizado</div>
+        <div class="footer">Cra 73D #35B-31 Sur &bull; Tel: 310 2326494 &bull; info@homeropetshop.com<br>Acceso restringido para personal autorizado</div>
     </div>
 </body>
 </html>

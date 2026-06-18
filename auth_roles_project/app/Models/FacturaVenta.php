@@ -16,11 +16,17 @@ class FacturaVenta extends Model
         'Iva_Fact',
         'Total_Fact',
         'Id_Cli_FK_FACTURA_VENTA',
+        'Id_Ven_FK',
         'Estado_Fact',
     ];
 
     public function cliente(): BelongsTo
     {
         return $this->belongsTo(Cliente::class, 'Id_Cli_FK_FACTURA_VENTA', 'Id_Cli');
+    }
+
+    public function venta(): BelongsTo
+    {
+        return $this->belongsTo(Venta::class, 'Id_Ven_FK', 'Id_Ven');
     }
 }

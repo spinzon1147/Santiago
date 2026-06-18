@@ -9,9 +9,9 @@
         <p>Administración y seguimiento de ventas</p>
     </div>
     <div style="display:flex;align-items:center;gap:10px">
-        <a href="{{ route('reportes.ventas') }}" class="btn-secondary" target="_blank" style="display:inline-flex;align-items:center;gap:8px">
+        <a href="{{ route('reportes.ventas') }}" class="btn-pdf" target="_blank" style="--pdf-color:#dc2626">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v4a1 1 0 001 1h4"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2a3 3 0 016 0v2"/></svg>
-            PDF
+            PDF Ventas
         </a>
         <a href="{{ route('ventas.create') }}" class="btn-primary">+ Nueva Venta</a>
     </div>
@@ -44,6 +44,10 @@
 
 <div class="card" style="padding:16px 20px;margin-bottom:20px">
     <form method="GET" action="{{ route('ventas.index') }}" style="display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap">
+        <div style="flex:1;min-width:180px">
+            <label class="input-label" style="font-size:11px">Buscar producto</label>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Nombre del producto..." class="input" style="padding:10px 14px;font-size:13px">
+        </div>
         <div>
             <label class="input-label" style="font-size:11px">Desde</label>
             <input type="date" name="fecha_desde" value="{{ request('fecha_desde') }}" class="input" style="padding:10px 14px;font-size:13px;width:170px">
@@ -53,7 +57,7 @@
             <input type="date" name="fecha_hasta" value="{{ request('fecha_hasta') }}" class="input" style="padding:10px 14px;font-size:13px;width:170px">
         </div>
         <button type="submit" class="btn-secondary" style="padding:10px 20px;font-size:13px">Buscar</button>
-        @if (request()->has('fecha_desde') || request()->has('fecha_hasta'))
+        @if (request('search') || request()->has('fecha_desde') || request()->has('fecha_hasta'))
             <a href="{{ route('ventas.index') }}" class="btn-secondary" style="padding:10px 20px;font-size:13px">Limpiar</a>
         @endif
     </form>
@@ -111,5 +115,6 @@
         </table>
         </div>
     </div>
+    {{ $ventas->appends(request()->query())->links() }}
 @endif
 @endsection

@@ -14,7 +14,7 @@
         body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,#fefaf5 0%,#fff5f0 50%,#fefaf5 100%);color:#1e293b;min-height:100vh;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
         .app-wrap{display:flex;height:100vh;overflow:hidden}
         .main-area{display:flex;flex-direction:column;flex:1;min-width:0;overflow:hidden}
-        main{flex:1;overflow-y:auto;padding:32px 36px;max-width:1280px;margin:0 auto;width:100%;animation:fadeUp .4s cubic-bezier(.22,1,.36,1)}
+        main{flex:1;overflow-y:auto;padding:32px 36px;width:100%;animation:fadeUp .4s cubic-bezier(.22,1,.36,1)}
         @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
         
         /* Scrollbar */
@@ -41,6 +41,7 @@
         .btn-primary:active{transform:translateY(-1px) scale(1);box-shadow:0 4px 12px rgba(249,115,22,0.2)}
         .btn-secondary{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:14px;font-size:14px;font-weight:500;color:#64748b;background:transparent;border:1.5px solid #e2e8f0;cursor:pointer;text-decoration:none;transition:all .2s}
         .btn-secondary:hover{color:#0f172a;background:#fff;border-color:#cbd5e1;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+        .btn-pdf{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;border:1.5px solid var(--pdf-color);color:var(--pdf-color);background:#fff;transition:all .25s cubic-bezier(.34,1.56,.64,1)}
         .btn-danger{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:14px;font-size:14px;font-weight:600;color:#fff;cursor:pointer;background:linear-gradient(135deg,#f87171,#ef4444);border:none;box-shadow:0 4px 16px rgba(239,68,68,0.2);transition:all .25s cubic-bezier(.34,1.56,.64,1);text-decoration:none}
         .btn-danger:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 8px 28px rgba(239,68,68,0.3)}
         

@@ -19,7 +19,7 @@ class ProductoController extends Controller
             $query->where('Nom_pro', 'like', "%{$search}%");
         }
 
-        $productos = $query->orderBy('Nom_pro')->get();
+        $productos = $query->orderBy('Nom_pro')->paginate(15);
 
         return view('productos.index', compact('productos'));
     }
@@ -44,10 +44,6 @@ class ProductoController extends Controller
 
     public function edit(string $id): View
     {
-        if (!auth()->user()->isAdmin()) {
-            abort(403, 'No tienes permiso para modificar productos.');
-        }
-
         $producto = Producto::findOrFail($id);
 
         return view('productos.edit', compact('producto'));
@@ -55,10 +51,6 @@ class ProductoController extends Controller
 
     public function update(StoreProductoRequest $request, string $id): RedirectResponse
     {
-        if (!auth()->user()->isAdmin()) {
-            abort(403, 'No tienes permiso para modificar productos.');
-        }
-
         $producto = Producto::findOrFail($id);
         $producto->update($request->validated());
 
@@ -69,10 +61,6 @@ class ProductoController extends Controller
 
     public function destroy(string $id): RedirectResponse
     {
-        if (!auth()->user()->isAdmin()) {
-            abort(403, 'No tienes permiso para eliminar productos.');
-        }
-
         $producto = Producto::findOrFail($id);
 
         if ($producto->ventas()->exists()) {

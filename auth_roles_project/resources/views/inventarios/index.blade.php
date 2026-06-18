@@ -103,5 +103,6 @@
         </table>
         </div>
     </div>
+    {{ $inventarios->appends(request()->query())->links() }}
 @endif
 @endsection

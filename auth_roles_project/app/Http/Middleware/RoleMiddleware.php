@@ -9,7 +9,7 @@ class RoleMiddleware
 {
     public function handle(Request $request, Closure $next, $role)
     {
-        if (!auth()->check() || auth()->user()->role->name !== $role) {
+        if (!auth()->check() || !auth()->user()->role || auth()->user()->role->name !== $role) {
             abort(403, 'No tienes permiso para acceder aquí.');
         }
 

@@ -11,6 +11,7 @@ use App\Http\Requests\StoreCompraRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
 
 class CompraController extends Controller
 {
@@ -22,6 +23,12 @@ class CompraController extends Controller
     {
         $query = Compra::with('producto', 'proveedor');
 
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('producto', function ($q) use ($search) {
+                $q->where('Nom_pro', 'LIKE', "%{$search}%");
+            });
+        }
         if ($request->filled('fecha_desde')) {
             $query->whereDate('Fecha_Com', '>=', $request->fecha_desde);
         }
@@ -29,7 +36,7 @@ class CompraController extends Controller
             $query->whereDate('Fecha_Com', '<=', $request->fecha_hasta);
         }
 
-        $compras = $query->orderBy('Fecha_Com', 'desc')->get();
+        $compras = $query->orderBy('Fecha_Com', 'desc')->paginate(15);
 
         return view('compras.index', compact('compras'));
     }
@@ -47,24 +54,29 @@ class CompraController extends Controller
         $producto = Producto::findOrFail($request->Id_Prod_FK);
         $total = (int) round($request->Precio_Com * $request->Cant_Com);
 
-        $compra = Compra::create([
-            'Id_Prod_FK' => $request->Id_Prod_FK,
-            'Cant_Com' => $request->Cant_Com,
-            'Valor_Com' => $total,
-            'Precio_Com' => (int) round($request->Precio_Com),
-            'Fecha_Com' => $request->Fecha_Com,
-            'Id_Proveedor' => $request->Id_Proveedor,
-        ]);
+        $compra = DB::transaction(function () use ($request, $producto, $total) {
+            $compra = Compra::create([
+                'Id_Prod_FK' => $request->Id_Prod_FK,
+                'Cant_Com' => $request->Cant_Com,
+                'Valor_Com' => $total,
+                'Precio_Com' => (int) round($request->Precio_Com),
+                'Fecha_Com' => $request->Fecha_Com,
+                'Id_Proveedor' => $request->Id_Proveedor,
+            ]);
 
-        $this->stockService->incrementStock($producto, $request->Cant_Com);
+            $this->stockService->incrementStock($producto, $request->Cant_Com);
 
-        Inventario::create([
-            'Precio_Com' => (int) round($request->Precio_Com),
-            'Precio_Ven' => (int) round($producto->Precio_pro),
-            'Stock' => $request->Cant_Com,
-            'Id_Producto' => $request->Id_Prod_FK,
-            'Id_Proveedor' => $request->Id_Proveedor,
-        ]);
+            Inventario::create([
+                'Precio_Com' => (int) round($request->Precio_Com),
+                'Precio_Ven' => (int) round($producto->Precio_pro),
+                'Stock' => $request->Cant_Com,
+                'Id_Producto' => $request->Id_Prod_FK,
+                'Id_Proveedor' => $request->Id_Proveedor,
+                'Id_Com_FK' => $compra->Id_Com,
+            ]);
+
+            return $compra;
+        });
 
         return redirect()
             ->route('compras.index')
@@ -73,10 +85,6 @@ class CompraController extends Controller
 
     public function edit(string $id): View
     {
-        if (!auth()->user()->isAdmin()) {
-            abort(403, 'No tienes permiso para modificar compras.');
-        }
-
         $compra = Compra::with('producto')->findOrFail($id);
         $productos = Producto::all();
         $proveedores = Proveedor::all();
@@ -86,86 +94,87 @@ class CompraController extends Controller
 
     public function update(StoreCompraRequest $request, string $id): RedirectResponse
     {
-        if (!auth()->user()->isAdmin()) {
-            abort(403, 'No tienes permiso para modificar compras.');
-        }
-
         $compra = Compra::findOrFail($id);
-        $productoAnterior = Producto::find($compra->Id_Prod_FK);
-        $productoNuevo = Producto::findOrFail($request->Id_Prod_FK);
 
-        if ($productoAnterior && $productoAnterior->Id_pro === $productoNuevo->Id_pro) {
-            $diff = $request->Cant_Com - $compra->Cant_Com;
-            if ($diff > 0) {
-                $this->stockService->incrementStock($productoNuevo, $diff);
-            } elseif ($diff < 0) {
-                if (!$productoAnterior || !$this->stockService->hasSufficientStock($productoAnterior, abs($diff))) {
-                    return back()->with('error', 'No hay suficiente stock para reducir la compra');
+        try {
+            DB::transaction(function () use ($request, $compra) {
+                $productoAnterior = Producto::find($compra->Id_Prod_FK);
+                $productoNuevo = Producto::findOrFail($request->Id_Prod_FK);
+
+                if ($productoAnterior && $productoAnterior->Id_pro === $productoNuevo->Id_pro) {
+                    $diff = $request->Cant_Com - $compra->Cant_Com;
+                    if ($diff > 0) {
+                        $this->stockService->incrementStock($productoNuevo, $diff);
+                    } elseif ($diff < 0) {
+                        if (!$productoAnterior || !$this->stockService->hasSufficientStock($productoAnterior, abs($diff))) {
+                            throw new \RuntimeException('No hay suficiente stock para reducir la compra');
+                        }
+                        $this->stockService->decrementStock($productoNuevo, abs($diff));
+                    }
+                } else {
+                    if ($productoAnterior) {
+                        if (!$this->stockService->hasSufficientStock($productoAnterior, $compra->Cant_Com)) {
+                            throw new \RuntimeException('No hay suficiente stock para devolver el producto anterior');
+                        }
+                        $this->stockService->decrementStock($productoAnterior, $compra->Cant_Com);
+                    }
+                    $this->stockService->incrementStock($productoNuevo, $request->Cant_Com);
                 }
-                $this->stockService->decrementStock($productoNuevo, abs($diff));
-            }
-        } else {
-            if ($productoAnterior) {
-                $this->stockService->decrementStock($productoAnterior, $compra->Cant_Com);
-            }
-            $this->stockService->incrementStock($productoNuevo, $request->Cant_Com);
+
+                $total = (int) round($request->Precio_Com * $request->Cant_Com);
+
+                Inventario::where('Id_Com_FK', $compra->Id_Com)->delete();
+
+                $compra->update([
+                    'Id_Prod_FK' => $request->Id_Prod_FK,
+                    'Cant_Com' => $request->Cant_Com,
+                    'Valor_Com' => $total,
+                    'Precio_Com' => (int) round($request->Precio_Com),
+                    'Fecha_Com' => $request->Fecha_Com,
+                    'Id_Proveedor' => $request->Id_Proveedor,
+                ]);
+
+                Inventario::create([
+                    'Precio_Com' => (int) round($request->Precio_Com),
+                    'Precio_Ven' => (int) round($productoNuevo->Precio_pro),
+                    'Stock' => $request->Cant_Com,
+                    'Id_Producto' => $request->Id_Prod_FK,
+                    'Id_Proveedor' => $request->Id_Proveedor,
+                    'Id_Com_FK' => $compra->Id_Com,
+                ]);
+            });
+
+            return redirect()
+                ->route('compras.index')
+                ->with('success', 'Compra actualizada correctamente');
+        } catch (\RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
         }
-
-        $total = (int) round($request->Precio_Com * $request->Cant_Com);
-
-        Inventario::where('Id_Producto', $compra->Id_Prod_FK)
-            ->where('Stock', $compra->Cant_Com)
-            ->latest()
-            ->take(1)
-            ->get()
-            ->each->delete();
-
-        $compra->update([
-            'Id_Prod_FK' => $request->Id_Prod_FK,
-            'Cant_Com' => $request->Cant_Com,
-            'Valor_Com' => $total,
-            'Precio_Com' => (int) round($request->Precio_Com),
-            'Fecha_Com' => $request->Fecha_Com,
-            'Id_Proveedor' => $request->Id_Proveedor,
-        ]);
-
-        Inventario::create([
-            'Precio_Com' => (int) round($request->Precio_Com),
-            'Precio_Ven' => (int) round($productoNuevo->Precio_pro),
-            'Stock' => $request->Cant_Com,
-            'Id_Producto' => $request->Id_Prod_FK,
-            'Id_Proveedor' => $request->Id_Proveedor,
-        ]);
-
-        return redirect()
-            ->route('compras.index')
-            ->with('success', 'Compra actualizada correctamente');
     }
 
     public function destroy(string $id): RedirectResponse
     {
-        if (!auth()->user()->isAdmin()) {
-            abort(403, 'No tienes permiso para eliminar compras.');
-        }
-
         $compra = Compra::findOrFail($id);
-        $producto = Producto::find($compra->Id_Prod_FK);
 
-        if ($producto) {
-            $this->stockService->decrementStock($producto, $compra->Cant_Com);
+        try {
+            DB::transaction(function () use ($compra) {
+                $producto = Producto::find($compra->Id_Prod_FK);
+                if ($producto) {
+                    if (!$this->stockService->hasSufficientStock($producto, $compra->Cant_Com)) {
+                        throw new \RuntimeException('No hay suficiente stock para eliminar esta compra');
+                    }
+                    $this->stockService->decrementStock($producto, $compra->Cant_Com);
+                }
+
+                Inventario::where('Id_Com_FK', $compra->Id_Com)->delete();
+                $compra->delete();
+            });
+
+            return redirect()
+                ->route('compras.index')
+                ->with('success', 'Compra eliminada, stock e inventario actualizados');
+        } catch (\RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
         }
-
-        Inventario::where('Id_Producto', $compra->Id_Prod_FK)
-            ->where('Stock', $compra->Cant_Com)
-            ->latest()
-            ->take(1)
-            ->get()
-            ->each->delete();
-
-        $compra->delete();
-
-        return redirect()
-            ->route('compras.index')
-            ->with('success', 'Compra eliminada, stock e inventario actualizados');
     }
 }

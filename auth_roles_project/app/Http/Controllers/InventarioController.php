@@ -6,6 +6,7 @@ use App\Models\Inventario;
 use App\Models\Proveedor;
 use App\Models\Producto;
 use App\Services\StockService;
+use App\Http\Requests\InventarioFormRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -25,7 +26,7 @@ class InventarioController extends Controller
             $query->whereHas('producto', fn($q) => $q->where('Nom_pro', 'like', "%{$search}%"));
         }
 
-        $inventarios = $query->get();
+        $inventarios = $query->paginate(15);
 
         return view('inventarios.index', compact('inventarios'));
     }
@@ -38,19 +39,9 @@ class InventarioController extends Controller
         return view('inventarios.create', compact('proveedores', 'productos'));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(InventarioFormRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'Precio_Com' => 'required|numeric|min:0',
-            'Precio_Ven' => 'required|numeric|min:0',
-            'Stock' => 'required|integer|min:0',
-            'Categoria' => 'nullable|string|max:255',
-            'Descripcion' => 'nullable|string|max:500',
-            'Id_Proveedor' => 'nullable|exists:proveedors,Id_Prov',
-            'Id_Producto' => 'required|exists:producto,Id_pro',
-        ]);
-
-        Inventario::create($validated);
+        Inventario::create($request->validated());
 
         $producto = Producto::find($request->Id_Producto);
         if ($producto) {
@@ -67,39 +58,24 @@ class InventarioController extends Controller
 
     public function edit(Inventario $inventario): View
     {
-        if (!auth()->user()->isAdmin()) {
-            abort(403, 'No tienes permiso para modificar inventario.');
-        }
-
         $proveedores = Proveedor::all();
         $productos = Producto::all();
 
         return view('inventarios.edit', compact('inventario', 'proveedores', 'productos'));
     }
 
-    public function update(Request $request, Inventario $inventario): RedirectResponse
+    public function update(InventarioFormRequest $request, Inventario $inventario): RedirectResponse
     {
-        if (!auth()->user()->isAdmin()) {
-            abort(403, 'No tienes permiso para modificar inventario.');
-        }
-
-        $validated = $request->validate([
-            'Precio_Com' => 'required|numeric|min:0',
-            'Precio_Ven' => 'required|numeric|min:0',
-            'Stock' => 'required|integer|min:0',
-            'Categoria' => 'nullable|string|max:255',
-            'Descripcion' => 'nullable|string|max:500',
-            'Id_Proveedor' => 'nullable|exists:proveedors,Id_Prov',
-            'Id_Producto' => 'required|exists:producto,Id_pro',
-        ]);
-
         $oldStock = (int) $inventario->Stock;
         $oldProductoId = $inventario->Id_Producto;
 
-        $inventario->update($validated);
+        $inventario->update($request->validated());
 
         $oldProducto = Producto::find($oldProductoId);
         if ($oldProducto) {
+            if (!$this->stockService->hasSufficientStock($oldProducto, $oldStock)) {
+                return back()->with('error', 'No hay suficiente stock para revertir el inventario anterior');
+            }
             $this->stockService->decrementStock($oldProducto, $oldStock);
         }
 
@@ -118,12 +94,11 @@ class InventarioController extends Controller
 
     public function destroy(Inventario $inventario): RedirectResponse
     {
-        if (!auth()->user()->isAdmin()) {
-            abort(403, 'No tienes permiso para eliminar inventario.');
-        }
-
         $producto = Producto::find($inventario->Id_Producto);
         if ($producto) {
+            if (!$this->stockService->hasSufficientStock($producto, (int) $inventario->Stock)) {
+                return back()->with('error', 'No hay suficiente stock para eliminar este inventario');
+            }
             $this->stockService->decrementStock($producto, (int) $inventario->Stock);
         }
 

@@ -17,12 +17,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/dashboard', fn () => view('dashboard'))->name('dashboard');
 
-    Route::resource('productos', ProductoController::class);
-    Route::resource('ventas', VentaController::class);
-    Route::resource('compras', CompraController::class);
-    Route::resource('clientes', ClienteController::class);
-    Route::resource('proveedores', ProveedorController::class);
-    Route::resource('inventarios', InventarioController::class);
+    $resources = [
+        'productos' => ProductoController::class,
+        'ventas' => VentaController::class,
+        'compras' => CompraController::class,
+        'clientes' => ClienteController::class,
+        'proveedores' => ProveedorController::class,
+        'inventarios' => InventarioController::class,
+    ];
+
+    foreach ($resources as $name => $controller) {
+        Route::resource($name, $controller)->except(['edit', 'update', 'destroy']);
+    }
+
+    Route::middleware('admin')->group(function () use ($resources) {
+        foreach ($resources as $name => $controller) {
+            Route::resource($name, $controller)->only(['edit', 'update', 'destroy']);
+        }
+    });
 
     Route::prefix('reportes')->name('reportes.')->group(function () {
         Route::get('/', fn () => view('reportes.index'))->name('index');

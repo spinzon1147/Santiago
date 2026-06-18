@@ -2,6 +2,7 @@
     <div style="display:flex;align-items:center;gap:12px">
         <img src="{{ asset('images/logo-homero.png') }}" alt="Homero Pet Shop" style="width:32px;height:32px;border-radius:8px;object-fit:cover;flex-shrink:0;box-shadow:0 4px 8px rgba(249,115,22,0.2)">
         <span style="font-weight:600;color:#1e293b;font-size:14px">Homero Pet Shop</span>
+        <span style="font-size:10px;color:#94a3b8;display:block;margin-top:-2px">Tel: 310 2326494 — Cra 73D #35B-31 Sur</span>
     </div>
     <div style="display:flex;align-items:center;gap:4px">
         <a href="{{ route('profile.edit') }}" style="padding:8px;border-radius:12px;color:#94a3b8;text-decoration:none;transition:all 0.2s" class="topbar-icon">

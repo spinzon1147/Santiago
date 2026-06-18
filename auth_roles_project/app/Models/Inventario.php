@@ -17,7 +17,8 @@ class Inventario extends Model
         'Categoria',
         'Descripcion',
         'Id_Proveedor',
-        'Id_Producto'
+        'Id_Producto',
+        'Id_Com_FK',
     ];
 
     public function proveedor()

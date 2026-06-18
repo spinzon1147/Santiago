@@ -5,13 +5,24 @@ namespace App\Http\Controllers;
 use App\Models\Proveedor;
 use App\Http\Requests\StoreProveedorRequest;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ProveedorController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $proveedores = Proveedor::all();
+        $query = Proveedor::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('Nom_Prov', 'like', "%{$search}%")
+                  ->orWhere('Tel_Prov', 'like', "%{$search}%");
+            });
+        }
+
+        $proveedores = $query->orderBy('Nom_Prov')->paginate(15);
 
         return view('proveedores.index', compact('proveedores'));
     }

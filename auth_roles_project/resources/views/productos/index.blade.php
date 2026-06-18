@@ -9,9 +9,9 @@
         <p>Gestión de productos del pet shop</p>
     </div>
     <div style="display:flex;align-items:center;gap:10px">
-        <a href="{{ route('reportes.productos') }}" class="btn-secondary" target="_blank" style="display:inline-flex;align-items:center;gap:8px">
+        <a href="{{ route('reportes.productos') }}" class="btn-pdf" target="_blank" style="--pdf-color:#059669">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v4a1 1 0 001 1h4"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2a3 3 0 016 0v2"/></svg>
-            PDF
+            PDF Inventario
         </a>
         <a href="{{ route('productos.create') }}" class="btn-primary">+ Nuevo Producto</a>
     </div>
@@ -112,5 +112,6 @@
         </table>
         </div>
     </div>
+    {{ $productos->appends(request()->query())->links() }}
 @endif
 @endsection

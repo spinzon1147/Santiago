@@ -29,4 +29,8 @@
         <button type="submit" class="btn-primary" style="width:100%">Ingresar al Sistema</button>
     </form>
     <p style="margin-top:28px;text-align:center;font-size:12px;color:#94a3b8">Acceso restringido para personal autorizado</p>
+    <p style="text-align:center;font-size:14px;color:#64748b;margin:12px 0 0">
+        ¿No tienes cuenta?
+        <a href="{{ route('register') }}" style="color:#ea580c;font-weight:600;text-decoration:none">Regístrate</a>
+    </p>
 </x-guest-layout>

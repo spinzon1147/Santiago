@@ -31,6 +31,19 @@
     </div>
 </div>
 
+<div class="card" style="padding:16px 20px;margin-bottom:20px">
+    <form method="GET" action="{{ route('users.index') }}" style="display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+            <label class="input-label" style="font-size:11px">Buscar usuario</label>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Nombre o email..." class="input" style="padding:10px 14px;font-size:13px">
+        </div>
+        <button type="submit" class="btn-secondary" style="padding:10px 20px;font-size:13px">Buscar</button>
+        @if (request('search'))
+            <a href="{{ route('users.index') }}" class="btn-secondary" style="padding:10px 20px;font-size:13px">Limpiar</a>
+        @endif
+    </form>
+</div>
+
 @if ($users->isEmpty())
     <div class="card empty-state">
         <svg width="64" height="64" fill="none" stroke="#cbd5e1" stroke-width="1.2" viewBox="0 0 24 24" style="margin:0 auto 16px">
@@ -67,15 +80,15 @@
                     </td>
                     <td style="color:#64748b;font-size:13px">{{ $user->created_at->format('d/m/Y') }}</td>
                     <td style="text-align:right">
+                        @if (Auth::user()->isAdmin())
                         <div style="display:flex;align-items:center;justify-content:flex-end;gap:6px">
                             <a href="{{ route('users.edit', $user->id) }}" class="action-link action-link-edit">Editar</a>
-                            @if ($user->id !== Auth::id())
                             <form action="{{ route('users.destroy', $user->id) }}" method="POST" style="margin:0" onsubmit="return confirm('¿Eliminar este usuario?')">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="action-link action-link-delete">Eliminar</button>
                             </form>
-                            @endif
                         </div>
+                        @endif
                     </td>
                 </tr>
                 @endforeach
@@ -83,5 +96,6 @@
         </table>
         </div>
     </div>
+    {{ $users->appends(request()->query())->links() }}
 @endif
 @endsection

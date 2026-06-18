@@ -43,11 +43,10 @@ class StockService
                 $this->incrementStock($oldProduct, abs($diff));
             }
         } else {
-            $this->incrementStock($oldProduct, $oldCant);
             if (!$this->hasSufficientStock($newProduct, $newCant)) {
-                $this->decrementStock($oldProduct, $oldCant);
                 throw new \RuntimeException('Stock insuficiente en el producto seleccionado');
             }
+            $this->incrementStock($oldProduct, $oldCant);
             $this->decrementStock($newProduct, $newCant);
         }
     }
@@ -56,9 +55,7 @@ class StockService
     {
         if ($producto->Cant_pro <= 0) {
             $producto->Estado_pro = 'Agotado';
-        } elseif ($producto->Cant_pro <= 5) {
-            $producto->Estado_pro = 'Bajo';
-        } else {
+        } elseif ($producto->Estado_pro !== 'Descontinuado') {
             $producto->Estado_pro = 'Disponible';
         }
     }
